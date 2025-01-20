@@ -1,33 +1,29 @@
-
 const express = require('express');
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
-const cors = require('cors');
-const bodyParser = require('body-parser');
-require('dotenv').config(); 
-
+const Stripe = require('stripe');
+const stripe = Stripe('your_stripe_secret_key');
 const app = express();
-const port = 5000; 
 
-app.use(cors());
-app.use(bodyParser.json());
+app.use(express.json());
 
-// Ruta para crear un pago con Stripe
 app.post('/create-payment-intent', async (req, res) => {
-  const { amount } = req.body;
+  const { amount } = req.body; 
+  if (!amount) {
+    return res.status(400).json({ error: 'Missing required param: amount' });
+  }
 
   try {
     const paymentIntent = await stripe.paymentIntents.create({
-      amount, 
-      currency: 'usd',
+      amount,
+      currency: 'usd', // O la moneda que estés utilizando
     });
-    res.send({
-      clientSecret: paymentIntent.client_secret,
-    });
+
+    res.json({ clientSecret: paymentIntent.client_secret });
   } catch (error) {
-    res.status(500).send({ error: error.message });
+    console.error('Error creating payment intent:', error);
+    res.status(500).send({ error: 'Failed to create payment intent' });
   }
 });
 
-app.listen(port, () => {
-  console.log(`Backend listening on port ${port}`);
+app.listen(5000, () => {
+  console.log('Server is running on http://localhost:5000');
 });

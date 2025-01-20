@@ -9,18 +9,22 @@ const CheckoutScreen = ({ route }) => {
 
   useEffect(() => {
     const fetchPaymentIntent = async () => {
-      const response = await fetch('http://localhost:5000/create-payment-intent', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount: product.price * 100, 
-        }),
-      });
+      try {
+        const response = await fetch('http://localhost:5000/create-payment-intent', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: product.price * 100, // Asegúrate de que esto esté enviando el valor correcto
+          }),
+        });
 
-      const { clientSecret } = await response.json();
-      setClientSecret(clientSecret);
+        const { clientSecret } = await response.json();
+        setClientSecret(clientSecret);
+      } catch (error) {
+        console.error('Error fetching payment intent:', error);
+      }
     };
 
     fetchPaymentIntent();
@@ -41,12 +45,14 @@ const CheckoutScreen = ({ route }) => {
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Checkout</Text>
-      <Text>{product.name}</Text>
-      <Text>{`Price: $${product.price}`}</Text>
-      <Button title="Pay" onPress={handlePayPress} />
-    </View>
+    <StripeProvider publishableKey="your_stripe_public_key">
+      <View style={styles.container}>
+        <Text style={styles.title}>Checkout</Text>
+        <Text>{product.name}</Text>
+        <Text>{`Price: $${product.price}`}</Text>
+        <Button title="Pay" onPress={handlePayPress} />
+      </View>
+    </StripeProvider>
   );
 };
 

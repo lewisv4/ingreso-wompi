@@ -14,8 +14,9 @@ const Stack = createStackNavigator();
 
 export default function App() {
   return (
+    
     <Provider store={store}>
-      <StripeProvider publishableKey="tu_clave_publica_de_stripe">
+      <StripeProvider publishableKey={process.env.STRIPE_PUBLISHABLE_KEY}>
         <NavigationContainer>
           <Stack.Navigator initialRouteName="Splash">
             <Stack.Screen name="Splash" component={SplashScreen} options={{ headerShown: false }} />
